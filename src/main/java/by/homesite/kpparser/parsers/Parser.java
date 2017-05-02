@@ -1,4 +1,4 @@
-package by.homesite.kpparser.processors;
+package by.homesite.kpparser.parsers;
 
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;

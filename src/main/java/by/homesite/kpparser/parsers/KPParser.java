@@ -3,8 +3,7 @@ package by.homesite.kpparser.parsers;
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
-import by.homesite.kpparser.processors.FilmProcessor;
-import by.homesite.kpparser.processors.Parser;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -12,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
 
 /**

@@ -1,30 +1,39 @@
-package by.homesite.kpparser.config;
+package by.homesite.kpparser.jobs;
 
 import by.homesite.kpparser.listener.JobCompletionNotificationListener;
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
+import by.homesite.kpparser.readers.FilenameItemReader;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.ResourcesItemReader;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+
+import java.io.IOException;
 
 /**
  * @author alex on 5/1/17.
  */
 @Configuration
+@PropertySource("classpath:application.properties")
 @EnableBatchProcessing
-public class MainJob {
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+public class MainJob implements ResourceLoaderAware {
 
    @Autowired
    public JobBuilderFactory jobBuilderFactory;
@@ -32,19 +41,26 @@ public class MainJob {
    @Autowired
    public StepBuilderFactory stepBuilderFactory;
 
+   @Value("${scanFilesFolder}")
+   private String scanFilesFolder;
+
+   @Value("${locaitonPattern}")
+   private String locaitonPattern;
+
+   @Value("${saveDescriptionsFolder}")
+   private String saveDescriptionsFolder;
+   private ResourceLoader resourceLoader;
+
    // tag::readerwriterprocessor[]
    @Bean
-   public ResourcesItemReader<FileInfo> reader() {
-      ResourcesItemReader<FileInfo> reader = new ResourcesItemReader<>();
-      reader.setResource(new ClassPathResource("sample-data.csv"));
-      reader.setLineMapper(new DefaultLineMapper<FileInfo>() {{
-         setLineTokenizer(new DelimitedLineTokenizer() {{
-            setNames(new String[] { "firstName", "lastName" });
-         }});
-         setFieldSetMapper(new BeanWrapperFieldSetMapper<Person>() {{
-            setTargetType(Person.class);
-         }});
-      }});
+   public MultiResourceItemReader multiResourceItemReader() throws IOException {
+
+      MultiResourceItemReader reader = new MultiResourceItemReader();
+      Resource[] resources = new Resource[] {resourceLoader.getResource(scanFilesFolder + locaitonPattern) };
+      reader.setResources(resources);
+
+      reader.setDelegate(new FilenameItemReader());
+
       return reader;
    }
 
@@ -54,15 +70,15 @@ public class MainJob {
    }
 
    @Bean
-   public JdbcBatchItemWriter<Film> writer() {
-      JdbcBatchItemWriter<Film> writer = new JdbcBatchItemWriter<Film>();
+   public FlatFileItemWriter<Film> writer() {
+      FlatFileItemWriter<Film> writer = new FlatFileItemWriter<>();
       return writer;
    }
    // end::readerwriterprocessor[]
 
    // tag::jobstep[]
    @Bean
-   public Job importUserJob(JobCompletionNotificationListener listener) {
+   public Job importUserJob(JobCompletionNotificationListener listener) throws IOException {
       return jobBuilderFactory.get("importUserJob")
             .incrementer(new RunIdIncrementer())
             .listener(listener)
@@ -72,13 +88,18 @@ public class MainJob {
    }
 
    @Bean
-   public Step step1() {
+   public Step step1() throws IOException {
       return stepBuilderFactory.get("step1")
             .<FileInfo, Film> chunk(10)
-            .reader(reader())
+            .reader(multiResourceItemReader())
             .processor(processor())
             .writer(writer())
             .build();
+   }
+
+   @Override
+   public void setResourceLoader(ResourceLoader resourceLoader) {
+      this.resourceLoader = resourceLoader;
    }
    // end::jobstep[]
 }
