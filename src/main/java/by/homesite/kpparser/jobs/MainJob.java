@@ -32,7 +32,6 @@ import java.io.IOException;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableBatchProcessing
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class MainJob implements ResourceLoaderAware {
 
    @Autowired
