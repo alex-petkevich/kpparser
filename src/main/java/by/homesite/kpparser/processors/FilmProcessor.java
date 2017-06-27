@@ -24,10 +24,12 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
       log.info("Converting ", inputFile.getName());
       Film filmInfo = null;
 
+      // TODO: inject parser to avoid of hardcode
       Parser infoParser = new KPParser();
+
       List<SearchResultItem> items = infoParser.searchFilms(inputFile);
       String url = "";
-      if (items.size() > 0)
+      if (items != null && items.size() > 0)
       {
          if (!StringUtils.isEmpty(inputFile.getYear())) {
             for (SearchResultItem item : items) {
@@ -40,7 +42,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
          }
       }
       if (!StringUtils.isEmpty(url)) {
-         filmInfo = infoParser.parseFilmInfo(url);
+         filmInfo = infoParser.parseFilmInfo(url, inputFile);
       }
 
       return filmInfo;

@@ -1,28 +1,26 @@
-package by.homesite.kpparser.jobs;
+package by.homesite.kpparser.config;
 
 import by.homesite.kpparser.listener.JobCompletionNotificationListener;
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
+import by.homesite.kpparser.writers.TextFileItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 
@@ -32,7 +30,7 @@ import java.io.IOException;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableBatchProcessing
-public class MainJob implements ResourceLoaderAware {
+public class MainJobConfig implements ResourceLoaderAware {
 
    @Autowired
    public JobBuilderFactory jobBuilderFactory;
@@ -55,8 +53,7 @@ public class MainJob implements ResourceLoaderAware {
    public MultiResourceItemReader multiResourceItemReader() throws IOException {
 
       MultiResourceItemReader reader = new MultiResourceItemReader();
-      Resource[] resources = new Resource[] {resourceLoader.getResource(scanFilesFolder + locaitonPattern) };
-      reader.setResources(resources);
+      reader.setResources(new PathMatchingResourcePatternResolver().getResources(scanFilesFolder + locaitonPattern));
 
       reader.setDelegate(new FilenameItemReader());
 
@@ -69,9 +66,8 @@ public class MainJob implements ResourceLoaderAware {
    }
 
    @Bean
-   public FlatFileItemWriter<Film> writer() {
-      FlatFileItemWriter<Film> writer = new FlatFileItemWriter<>();
-      return writer;
+   public TextFileItemWriter writer() {
+      return new TextFileItemWriter();
    }
    // end::readerwriterprocessor[]
 

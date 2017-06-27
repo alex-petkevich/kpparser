@@ -13,5 +13,5 @@ public interface Parser {
 
    List<SearchResultItem> searchFilms(FileInfo fileInfo);
 
-   Film parseFilmInfo(String url);
+   Film parseFilmInfo(String url, FileInfo inputFile);
 }
