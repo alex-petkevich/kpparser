@@ -21,28 +21,30 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
    @Override
    public Film process(final FileInfo inputFile) throws Exception {
 
-      log.info("Converting ", inputFile.getName());
+      log.info("Converting {}...", inputFile.getName());
       Film filmInfo = null;
 
       // TODO: inject parser to avoid of hardcode
       Parser infoParser = new KPParser();
 
       List<SearchResultItem> items = infoParser.searchFilms(inputFile);
-      String url = "";
       if (items != null && items.size() > 0)
       {
+         SearchResultItem listItem;
+
          if (!StringUtils.isEmpty(inputFile.getYear())) {
-            for (SearchResultItem item : items) {
-               if (!StringUtils.isEmpty(item.getYear()) && item.getYear().equals(inputFile.getYear())) {
-                  url = item.getUrl();
-               }
-            }
+             listItem = items.stream()
+                  .filter(item -> !StringUtils.isEmpty(item.getYear()) && item.getYear().equals(inputFile.getYear()))
+                  .findFirst()
+                  .get();
+
          } else {
-            url = items.get(0).getUrl();
+            listItem = items.get(0);
          }
-      }
-      if (!StringUtils.isEmpty(url)) {
-         filmInfo = infoParser.parseFilmInfo(url, inputFile);
+
+         if (!StringUtils.isEmpty(listItem.getUrl())) {
+            filmInfo = infoParser.parseFilmInfo(listItem, inputFile);
+         }
       }
 
       return filmInfo;
