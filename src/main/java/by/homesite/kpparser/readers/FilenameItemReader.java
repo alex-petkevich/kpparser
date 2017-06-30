@@ -4,6 +4,9 @@ import by.homesite.kpparser.model.FileInfo;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.core.io.Resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static by.homesite.kpparser.utils.FilenameUtils.extractTitleFromFilename;
 import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 
@@ -13,6 +16,7 @@ import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 public class FilenameItemReader extends FlatFileItemReader<FileInfo> {
 
    private Resource myresource;
+   private List<String> alreadyRead = new ArrayList<>();
 
    @Override
    public void setResource(Resource var1) {
@@ -22,11 +26,18 @@ public class FilenameItemReader extends FlatFileItemReader<FileInfo> {
 
    @Override
    protected FileInfo doRead() throws Exception {
+
+      if (alreadyRead.contains(myresource.getFile().getName())) {
+         return null;
+      }
+
       FileInfo filenameEntity = new FileInfo();
 
       filenameEntity.setName(myresource.getFile().getName());
       filenameEntity.setTitle(extractTitleFromFilename(myresource.getFile().getName()));
       filenameEntity.setYear(extractYearFromFilename(myresource.getFile().getName()));
+
+      alreadyRead.add(myresource.getFile().getName());
 
       return filenameEntity;
    }

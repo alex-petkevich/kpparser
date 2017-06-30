@@ -71,7 +71,7 @@ public class KPParser implements Parser {
       Film film = new Film();
 
       if (!StringUtils.isEmpty(searchItem.getUrl())) {
-         try {
+        /* try {
             doc = Jsoup.connect(FILM_INFO_URL + searchItem.getUrl()).get();
          } catch (IOException e) {
             log.error("Can't get film {} info for {}", searchItem.getTitle(), FILM_INFO_URL + searchItem.getUrl());
@@ -104,13 +104,15 @@ public class KPParser implements Parser {
          Elements roles = rolesList.select("li a");
          film.setRoles(roles.stream().map(Element::text).collect( Collectors.joining(", ")));
 
-         film.setFileName(inputFile.getName());
          film.setTitle(doc.select(".moviename-big").first().text());
          film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
-         film.setYear(inputFile.getYear());
-         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
          film.setKpRating(doc.select(".rating_ball").first().text());
          film.setDescription(doc.select(".film-synopsys").first().text());
+         */
+         film.setFileName(inputFile.getName());
+         film.setYear(inputFile.getYear());
+         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
+
       }
       return film;
    }

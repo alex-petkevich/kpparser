@@ -5,7 +5,9 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
-import by.homesite.kpparser.writers.TextFileItemWriter;
+import by.homesite.kpparser.writers.FileItemWriter;
+import by.homesite.kpparser.writers.savers.ContextExecutor;
+import freemarker.template.TemplateExceptionHandler;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -44,8 +46,6 @@ public class MainJobConfig implements ResourceLoaderAware {
    @Value("${locaitonPattern}")
    private String locaitonPattern;
 
-   @Value("${saveDescriptionsFolder}")
-   private String saveDescriptionsFolder;
    private ResourceLoader resourceLoader;
 
    // tag::readerwriterprocessor[]
@@ -61,13 +61,28 @@ public class MainJobConfig implements ResourceLoaderAware {
    }
 
    @Bean
+   public ContextExecutor contextExecutor() {
+      return new ContextExecutor();
+   }
+
+   @Bean(name ="freemarkerConfig")
+   public freemarker.template.Configuration freemarkerConfig() throws IOException {
+      freemarker.template.Configuration configurer = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
+      configurer.setClassForTemplateLoading(this.getClass(), "/templates");
+      configurer.setDefaultEncoding("UTF-8");
+      configurer.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+      configurer.setLogTemplateExceptions(false);
+      return configurer;
+   }
+
+   @Bean
    public FilmProcessor processor() {
       return new FilmProcessor();
    }
 
    @Bean
-   public TextFileItemWriter writer() {
-      return new TextFileItemWriter();
+   public FileItemWriter writer() {
+      return new FileItemWriter();
    }
    // end::readerwriterprocessor[]
 

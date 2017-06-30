@@ -47,7 +47,7 @@ public class FilenameUtils {
       //crop extension
       name = name.substring(0, name.lastIndexOf('.'));
       //replace all dots by spaces
-      name = name.replaceAll("\\.+", " ");
+      name = name.replaceAll("[\\._\\-\\(\\)]+", " ");
       //merge words if it is not a year
       return name.split("\\s+");
    }

@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
    private static final Logger log = LoggerFactory.getLogger(FilmProcessor.class);
+   private static final int TTW_BETWEEN_REQUESTS = 3000;
 
    @Override
    public Film process(final FileInfo inputFile) throws Exception {
@@ -43,6 +44,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
          }
 
          if (!StringUtils.isEmpty(listItem.getUrl())) {
+            Thread.sleep(TTW_BETWEEN_REQUESTS);
             filmInfo = infoParser.parseFilmInfo(listItem, inputFile);
          }
       }
