@@ -4,8 +4,8 @@ import by.homesite.kpparser.model.FileInfo;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.core.io.Resource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static by.homesite.kpparser.utils.FilenameUtils.extractTitleFromFilename;
 import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
@@ -16,7 +16,7 @@ import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 public class FilenameItemReader extends FlatFileItemReader<FileInfo> {
 
    private Resource myresource;
-   private List<String> alreadyRead = new ArrayList<>();
+   private Queue<String> alreadyRead = new ConcurrentLinkedQueue<>();
 
    @Override
    public void setResource(Resource var1) {

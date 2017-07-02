@@ -61,21 +61,6 @@ public class MainJobConfig implements ResourceLoaderAware {
    }
 
    @Bean
-   public ContextExecutor contextExecutor() {
-      return new ContextExecutor();
-   }
-
-   @Bean(name ="freemarkerConfig")
-   public freemarker.template.Configuration freemarkerConfig() throws IOException {
-      freemarker.template.Configuration configurer = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
-      configurer.setClassForTemplateLoading(this.getClass(), "/templates");
-      configurer.setDefaultEncoding("UTF-8");
-      configurer.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-      configurer.setLogTemplateExceptions(false);
-      return configurer;
-   }
-
-   @Bean
    public FilmProcessor processor() {
       return new FilmProcessor();
    }
@@ -112,4 +97,15 @@ public class MainJobConfig implements ResourceLoaderAware {
       this.resourceLoader = resourceLoader;
    }
    // end::jobstep[]
+
+   @Bean(name ="freemarkerConfig")
+   public freemarker.template.Configuration freemarkerConfig() throws IOException {
+      freemarker.template.Configuration configurer = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
+      configurer.setClassForTemplateLoading(this.getClass(), "/templates");
+      configurer.setDefaultEncoding("UTF-8");
+      configurer.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+      configurer.setLogTemplateExceptions(false);
+      return configurer;
+   }
+
 }

@@ -5,6 +5,6 @@ import by.homesite.kpparser.model.Film;
 /**
  * @author alex on 6/29/17.
  */
-public interface Saver {
+public interface SaverStrategy {
    void doSave(Film item);
 }

@@ -4,12 +4,14 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 
+import by.homesite.kpparser.utils.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author alex on 5/1/17.
  */
+@Component(Constants.INPUT_SYSTEMS_KINOPOISK)
 public class KPParser implements Parser {
    public static final String CHARSET = "UTF-8";
 
@@ -71,7 +74,7 @@ public class KPParser implements Parser {
       Film film = new Film();
 
       if (!StringUtils.isEmpty(searchItem.getUrl())) {
-        /* try {
+         try {
             doc = Jsoup.connect(FILM_INFO_URL + searchItem.getUrl()).get();
          } catch (IOException e) {
             log.error("Can't get film {} info for {}", searchItem.getTitle(), FILM_INFO_URL + searchItem.getUrl());
@@ -108,7 +111,7 @@ public class KPParser implements Parser {
          film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
          film.setKpRating(doc.select(".rating_ball").first().text());
          film.setDescription(doc.select(".film-synopsys").first().text());
-         */
+
          film.setFileName(inputFile.getName());
          film.setYear(inputFile.getYear());
          film.setUrl(FILM_INFO_URL + searchItem.getUrl());

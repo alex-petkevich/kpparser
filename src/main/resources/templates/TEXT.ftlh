@@ -1,11 +1,12 @@
-Фильм: ${film.title}
-Оригинальное название: ${film.originalTitle}
-Год: ${film.year}
-Режиссер: ${film.director}
-В ролях: ${film.roles}
-Жанр: ${film.genre}
-Страна: ${film.country}
-Рейтинг КР: ${film.kpRating}
+${(film.title)!}
 
-Описание:
-${film.description}
+<#if film.originalTitle??>Оригинальное название: ${film.originalTitle}
+</#if><#if film.year??>Год: ${film.year}
+</#if><#if film.director??>Режиссер: ${film.director}
+</#if><#if film.roles??>В ролях: ${film.roles}
+</#if><#if film.genre??>Жанр: ${film.genre}
+</#if><#if film.country??>Страна: ${film.country}
+</#if><#if film.kpRating??>Рейтинг КР: ${film.kpRating}
+</#if>
+
+${(film.description)!}
