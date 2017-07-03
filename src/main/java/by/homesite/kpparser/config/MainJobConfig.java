@@ -6,7 +6,6 @@ import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
 import by.homesite.kpparser.writers.FileItemWriter;
-import by.homesite.kpparser.writers.savers.ContextExecutor;
 import freemarker.template.TemplateExceptionHandler;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -85,7 +84,7 @@ public class MainJobConfig implements ResourceLoaderAware {
    @Bean
    public Step step1() throws IOException {
       return stepBuilderFactory.get("step1")
-            .<FileInfo, Film> chunk(10)
+            .<FileInfo, Film> chunk(3)
             .reader(multiResourceItemReader())
             .processor(processor())
             .writer(writer())

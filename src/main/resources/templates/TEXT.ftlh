@@ -7,6 +7,7 @@ ${(film.title)!}
 </#if><#if film.genre??>Жанр: ${film.genre}
 </#if><#if film.country??>Страна: ${film.country}
 </#if><#if film.kpRating??>Рейтинг КР: ${film.kpRating}
+</#if><#if film.url??>URL: ${film.url}
 </#if>
 
 ${(film.description)!}

@@ -5,20 +5,21 @@ import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 
 import by.homesite.kpparser.utils.Constants;
+import by.homesite.kpparser.utils.IProxy;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,13 +37,22 @@ public class KPParser implements Parser {
    private static final String TD_COUNTRY = "страна";
    private static final String TD_GENRES = "жанр";
    private static final String TD_DIRECTOR = "режиссер";
+   private Map<String, String> cookies = new HashMap<>();
+
+   @Autowired
+   private IProxy proxy;
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
       Document doc;
       try {
          String url = SEARCH_URL + URLEncoder.encode(fileInfo.getTitle(), CHARSET);
-         doc = Jsoup.connect(url).get();
+         Connection connection = Jsoup
+               .connect(url)
+               .cookies(cookies)
+               .proxy(proxy.getProxy());
+         doc = connection.get();
+         cookies = connection.response().cookies();
       } catch (IOException e) {
          log.error("Can't get search results for {}", fileInfo.getName());
          return null;
@@ -72,16 +82,28 @@ public class KPParser implements Parser {
    public Film parseFilmInfo(SearchResultItem searchItem, FileInfo inputFile) {
       Document doc;
       Film film = new Film();
+      film.setFileName(inputFile.getName());
+      film.setYear(inputFile.getYear());
 
       if (!StringUtils.isEmpty(searchItem.getUrl())) {
+         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
+
          try {
-            doc = Jsoup.connect(FILM_INFO_URL + searchItem.getUrl()).get();
+            Connection connection = Jsoup
+                  .connect(FILM_INFO_URL + searchItem.getUrl())
+                  .cookies(cookies)
+                  .proxy(proxy.getProxy());
+            doc = connection.get();
+            cookies = connection.response().cookies();
          } catch (IOException e) {
+            film.setTitle(searchItem.getTitle());
             log.error("Can't get film {} info for {}", searchItem.getTitle(), FILM_INFO_URL + searchItem.getUrl());
-            return null;
+            return film;
          }
 
-         film.setImg(doc.select(".popupBigImage img").first().attr("src"));
+         Element img = doc.select(".popupBigImage img").first();
+         if (img != null)
+            film.setImg(img.attr("src"));
          Elements info = doc.select(".info td");
          ListIterator iter = info.listIterator();
          Element previous = null;
@@ -104,17 +126,14 @@ public class KPParser implements Parser {
          }
 
          Element rolesList = doc.select("#actorList ul").first();
-         Elements roles = rolesList.select("li a");
-         film.setRoles(roles.stream().map(Element::text).collect( Collectors.joining(", ")));
-
+         if (rolesList != null) {
+            Elements roles = rolesList.select("li a");
+            film.setRoles(roles.stream().map(Element::text).collect(Collectors.joining(", ")));
+         }
          film.setTitle(doc.select(".moviename-big").first().text());
          film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
          film.setKpRating(doc.select(".rating_ball").first().text());
          film.setDescription(doc.select(".film-synopsys").first().text());
-
-         film.setFileName(inputFile.getName());
-         film.setYear(inputFile.getYear());
-         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
 
       }
       return film;

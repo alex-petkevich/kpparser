@@ -52,13 +52,13 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
              listItem = items.stream()
                   .filter(item -> !StringUtils.isEmpty(item.getYear()) && item.getYear().equals(inputFile.getYear()))
                   .findFirst()
-                  .get();
+                  .orElse(null);
 
          } else {
             listItem = items.get(0);
          }
 
-         if (!StringUtils.isEmpty(listItem.getUrl())) {
+         if (listItem != null && !StringUtils.isEmpty(listItem.getUrl())) {
             Thread.sleep(TTW_BETWEEN_REQUESTS);
             filmInfo = infoParser.parseFilmInfo(listItem, inputFile);
          }

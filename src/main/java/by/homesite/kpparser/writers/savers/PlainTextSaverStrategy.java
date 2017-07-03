@@ -42,6 +42,9 @@ public class PlainTextSaverStrategy implements SaverStrategy {
       Map root = new HashMap<String, Object>();
       root.put("film", item);
       Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.TEXT_OUTPUT_EXTENSION);
+      if (Files.exists(outputFileName)) {
+         return;
+      }
 
       try (Writer out = Files.newBufferedWriter(outputFileName, Charset.defaultCharset())) {
 
