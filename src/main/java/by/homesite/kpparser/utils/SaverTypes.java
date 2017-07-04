@@ -1,4 +1,4 @@
-package by.homesite.kpparser.writers.savers;
+package by.homesite.kpparser.utils;
 
 /**
  * @author alex on 6/29/17.

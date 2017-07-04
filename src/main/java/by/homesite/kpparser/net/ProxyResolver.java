@@ -1,4 +1,4 @@
-package by.homesite.kpparser.utils;
+package by.homesite.kpparser.net;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package by.homesite.kpparser.utils;
+package by.homesite.kpparser.net;
 
 import java.net.Proxy;
 

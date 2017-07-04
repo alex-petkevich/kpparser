@@ -3,9 +3,8 @@ package by.homesite.kpparser.parsers;
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
-
-import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.net.IProxy;
+import by.homesite.kpparser.utils.Constants;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,20 +22,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author alex on 5/1/17.
+ * @author alex on 7/4/17.
  */
-@Component(Constants.INPUT_SYSTEMS_KINOPOISK)
-public class KPParser implements Parser {
+@Component(Constants.INPUT_SYSTEMS_RUTOR)
+public class RutorParser implements Parser {
    public static final String CHARSET = "UTF-8";
 
-   private static final String SEARCH_URL = "https://www.kinopoisk.ru/index.php?kp_query=";
+   private static final String SEARCH_URL = "http://rutor.is/search/";
    private static final String FILM_INFO_URL = "https://www.kinopoisk.ru";
 
-   private static final Logger log = LoggerFactory.getLogger(KPParser.class);
+   private static final Logger log = LoggerFactory.getLogger(RutorParser.class);
 
    private static final String TD_COUNTRY = "страна";
    private static final String TD_GENRES = "жанр";
    private static final String TD_DIRECTOR = "режиссер";
+   private static final String TD_ROLES = "в ролях";
+   private static final String TD_ABOUT = "о фильме";
+   private static final String TD_ABOUT2 = "описание";
    private Map<String, String> cookies = new HashMap<>();
 
    @Autowired
