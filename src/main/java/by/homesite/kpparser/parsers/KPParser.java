@@ -4,6 +4,7 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 
+import by.homesite.kpparser.net.HttpClient;
 import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.net.IProxy;
 import org.jsoup.Connection;
@@ -22,13 +23,13 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static by.homesite.kpparser.utils.Constants.CHARSET;
+
 /**
  * @author alex on 5/1/17.
  */
 @Component(Constants.INPUT_SYSTEMS_KINOPOISK)
 public class KPParser implements Parser {
-   public static final String CHARSET = "UTF-8";
-
    private static final String SEARCH_URL = "https://www.kinopoisk.ru/index.php?kp_query=";
    private static final String FILM_INFO_URL = "https://www.kinopoisk.ru";
 
@@ -37,24 +38,20 @@ public class KPParser implements Parser {
    private static final String TD_COUNTRY = "страна";
    private static final String TD_GENRES = "жанр";
    private static final String TD_DIRECTOR = "режиссер";
-   private Map<String, String> cookies = new HashMap<>();
 
    @Autowired
-   private IProxy proxy;
+   private HttpClient httpClient;
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
       Document doc;
       try {
-         String url = SEARCH_URL + URLEncoder.encode(fileInfo.getTitle(), CHARSET);
-         Connection connection = Jsoup
-               .connect(url)
-               .cookies(cookies)
-               .proxy(proxy.getProxy());
-         doc = connection.get();
-         cookies = connection.response().cookies();
+         doc = httpClient.get(SEARCH_URL + URLEncoder.encode(fileInfo.getTitle(), CHARSET));
       } catch (IOException e) {
          log.error("Can't get search results for {}", fileInfo.getName());
+         return null;
+      }
+      if (doc == null) {
          return null;
       }
       Elements blocks = doc.select(".element");
@@ -67,7 +64,7 @@ public class KPParser implements Parser {
             item.setYear(year);
             Element link = block.select(".name a").first();
             item.setTitle(link.text());
-            item.setUrl(link.attr("data-url"));
+            item.setUrl(FILM_INFO_URL + link.attr("data-url"));
 
             result.add(item);
          }
@@ -86,18 +83,12 @@ public class KPParser implements Parser {
       film.setYear(inputFile.getYear());
 
       if (!StringUtils.isEmpty(searchItem.getUrl())) {
-         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
+         film.setUrl(searchItem.getUrl());
+         film.setTitle(searchItem.getTitle());
 
-         try {
-            Connection connection = Jsoup
-                  .connect(FILM_INFO_URL + searchItem.getUrl())
-                  .cookies(cookies)
-                  .proxy(proxy.getProxy());
-            doc = connection.get();
-            cookies = connection.response().cookies();
-         } catch (IOException e) {
-            film.setTitle(searchItem.getTitle());
-            log.error("Can't get film {} info for {}", searchItem.getTitle(), FILM_INFO_URL + searchItem.getUrl());
+         doc = httpClient.get(searchItem.getUrl());
+
+         if (doc == null) {
             return film;
          }
 

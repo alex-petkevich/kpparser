@@ -10,6 +10,7 @@ public class Constants {
    public static final String FREEMARKER_TEMPLATES_EXTENSIONS = ".ftlh";
    public static final String INPUT_SYSTEMS_KINOPOISK = "KinoPoisk";
    public static final String INPUT_SYSTEMS_RUTOR = "rutor";
+   public static final String CHARSET = "UTF-8";
 
    private Constants() {
 

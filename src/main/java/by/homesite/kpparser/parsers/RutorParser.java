@@ -3,6 +3,7 @@ package by.homesite.kpparser.parsers;
 import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
+import by.homesite.kpparser.net.HttpClient;
 import by.homesite.kpparser.net.IProxy;
 import by.homesite.kpparser.utils.Constants;
 import org.jsoup.Connection;
@@ -21,15 +22,17 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static by.homesite.kpparser.utils.Constants.CHARSET;
+import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
+
 /**
  * @author alex on 7/4/17.
  */
 @Component(Constants.INPUT_SYSTEMS_RUTOR)
 public class RutorParser implements Parser {
-   public static final String CHARSET = "UTF-8";
 
    private static final String SEARCH_URL = "http://rutor.is/search/";
-   private static final String FILM_INFO_URL = "https://www.kinopoisk.ru";
+   private static final String FILM_INFO_URL = "http://rutor.is";
 
    private static final Logger log = LoggerFactory.getLogger(RutorParser.class);
 
@@ -39,37 +42,40 @@ public class RutorParser implements Parser {
    private static final String TD_ROLES = "в ролях";
    private static final String TD_ABOUT = "о фильме";
    private static final String TD_ABOUT2 = "описание";
-   private Map<String, String> cookies = new HashMap<>();
 
    @Autowired
-   private IProxy proxy;
+   private HttpClient httpClient;
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
+
       Document doc;
       try {
-         String url = SEARCH_URL + URLEncoder.encode(fileInfo.getTitle(), CHARSET);
-         Connection connection = Jsoup
-               .connect(url)
-               .cookies(cookies)
-               .proxy(proxy.getProxy());
-         doc = connection.get();
-         cookies = connection.response().cookies();
+         doc = httpClient.get(SEARCH_URL + URLEncoder.encode(fileInfo.getTitle(), CHARSET));
       } catch (IOException e) {
          log.error("Can't get search results for {}", fileInfo.getName());
          return null;
       }
-      Elements blocks = doc.select(".element");
+      if (doc == null) {
+         return null;
+      }
+
+      Elements blocks = doc.select(".gai,.tum");
       if (blocks.size() > 0) {
          List<SearchResultItem> result = new ArrayList();
 
          for (Element block : blocks) {
             SearchResultItem item = new SearchResultItem();
-            String year = block.select(".year").text();
-            item.setYear(year);
-            Element link = block.select(".name a").first();
-            item.setTitle(link.text());
-            item.setUrl(link.attr("data-url"));
+            if (block.select("td").size() < 2) {
+               continue;
+            }
+
+            Element td = block.select("td").get(1);
+            Element a = td.select("a").last();
+
+            item.setTitle(a.text());
+            item.setUrl(FILM_INFO_URL + a.attr("href"));
+            item.setYear(extractYearFromFilename(item.getTitle()));
 
             result.add(item);
          }
@@ -88,26 +94,26 @@ public class RutorParser implements Parser {
       film.setYear(inputFile.getYear());
 
       if (!StringUtils.isEmpty(searchItem.getUrl())) {
-         film.setUrl(FILM_INFO_URL + searchItem.getUrl());
+         film.setUrl(searchItem.getUrl());
+         film.setTitle(searchItem.getTitle());
 
-         try {
-            Connection connection = Jsoup
-                  .connect(FILM_INFO_URL + searchItem.getUrl())
-                  .cookies(cookies)
-                  .proxy(proxy.getProxy());
-            doc = connection.get();
-            cookies = connection.response().cookies();
-         } catch (IOException e) {
-            film.setTitle(searchItem.getTitle());
-            log.error("Can't get film {} info for {}", searchItem.getTitle(), FILM_INFO_URL + searchItem.getUrl());
+         doc = httpClient.get(searchItem.getUrl());
+
+         if (doc == null) {
             return film;
          }
 
-         Element img = doc.select(".popupBigImage img").first();
+         Element infoTr = doc.select("#details tr").first();
+         if (infoTr == null ) {
+            return film;
+         }
+         Element info = doc.select("td").last();
+
+         Element img = info.select("img").first();
          if (img != null)
             film.setImg(img.attr("src"));
-         Elements info = doc.select(".info td");
-         ListIterator iter = info.listIterator();
+
+         /*ListIterator iter = info.listIterator();
          Element previous = null;
          if (iter.hasNext())
          {
@@ -136,7 +142,7 @@ public class RutorParser implements Parser {
          film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
          film.setKpRating(doc.select(".rating_ball").first().text());
          film.setDescription(doc.select(".film-synopsys").first().text());
-
+*/
       }
       return film;
    }

@@ -33,7 +33,7 @@ public class ProxyResolver implements IProxy {
          return null;
       }
 
-      String proxy = null;
+      String proxy;
       try {
          proxy = choose(new File(proxyListFile));
       } catch (FileNotFoundException e) {
