@@ -12,9 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author alex on 4/30/17.
@@ -37,11 +39,30 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
       log.info("Converting {}...", inputFile.getName());
       Film filmInfo = null;
 
-      if (!parsers.containsKey(inputSystem)) {
+      if (inputSystem == null) {
          return null;
       }
+      List<String> inputParsers = Arrays.stream(inputSystem.split(",")).map(String::trim).collect(Collectors.toList());
 
-      Parser infoParser = parsers.get(inputSystem);
+      for (String input: inputParsers) {
+         filmInfo = parseSingleSystem(input, inputFile);
+         if (filmInfo != null) {
+            return filmInfo;
+         }
+      }
+
+      return filmInfo;
+   }
+
+   private Film parseSingleSystem(final String input, final FileInfo inputFile) throws Exception {
+
+     Film filmInfo = null;
+
+      if (!parsers.containsKey(input)) {
+         return filmInfo;
+      }
+
+      Parser infoParser = parsers.get(input);
 
       List<SearchResultItem> items = infoParser.searchFilms(inputFile);
       if (items != null && items.size() > 0)
@@ -49,7 +70,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
          SearchResultItem listItem;
 
          if (!StringUtils.isEmpty(inputFile.getYear())) {
-             listItem = items.stream()
+            listItem = items.stream()
                   .filter(item -> !StringUtils.isEmpty(item.getYear()) && item.getYear().equals(inputFile.getYear()))
                   .findFirst()
                   .orElse(null);
