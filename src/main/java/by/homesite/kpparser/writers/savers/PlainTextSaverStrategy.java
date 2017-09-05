@@ -38,12 +38,15 @@ public class PlainTextSaverStrategy implements SaverStrategy {
    @Value("${saveDescriptionsFolder}")
    private String saveDescriptionsFolder;
 
+   @Value("${rescanExistingDescriptions}")
+   private Boolean rescanExistingDescriptions;
+
    @Override
    public void doSave(Film item) {
       Map root = new HashMap<String, Object>();
       root.put("film", item);
       Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.TEXT_OUTPUT_EXTENSION);
-      if (Files.exists(outputFileName)) {
+      if (Files.exists(outputFileName) && Boolean.TRUE != rescanExistingDescriptions) {
          return;
       }
 

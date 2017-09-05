@@ -20,9 +20,12 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static by.homesite.kpparser.utils.Constants.CHARSET;
+import static by.homesite.kpparser.utils.FilenameUtils.cleanHtml;
 import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 
 /**
@@ -36,12 +39,14 @@ public class RutorParser implements Parser {
 
    private static final Logger log = LoggerFactory.getLogger(RutorParser.class);
 
-   private static final String TD_COUNTRY = "страна";
-   private static final String TD_GENRES = "жанр";
-   private static final String TD_DIRECTOR = "режиссер";
-   private static final String TD_ROLES = "в ролях";
-   private static final String TD_ABOUT = "о фильме";
-   private static final String TD_ABOUT2 = "описание";
+   private static final String TD_COUNTRY = "Страна";
+   private static final String TD_GENRES = "Жанр";
+   private static final String TD_DIRECTOR = "Режиссер";
+   private static final String TD_ROLES = "В ролях";
+   private static final String TD_ABOUT = "Описание";
+   private static final String TD_TITLE = "Название";
+   private static final String TD_ORIG_TITLE = "Оригинальное название";
+   private static final String TD_YEAR = "Год выпуска";
 
    @Autowired
    private HttpClient httpClient;
@@ -113,37 +118,33 @@ public class RutorParser implements Parser {
          if (img != null)
             film.setImg(img.attr("src"));
 
-         /*ListIterator iter = info.listIterator();
-         Element previous = null;
-         if (iter.hasNext())
-         {
-            previous = (Element) iter.next();
+         String lines[] = info.text().split("<br\\s*/?>");
+         Pattern stringData = Pattern.compile("<b>(.+)</b>(.+)");
+
+         for(String line: lines) {
+            Matcher m = stringData.matcher(line);
+            if (m.find()) {
+               if (TD_COUNTRY.equals(m.group(0)))
+                  film.setCountry(m.group(1));
+               if (TD_GENRES.equals(m.group(0)))
+                  film.setGenre(cleanHtml(m.group(1)));
+               if (TD_DIRECTOR.equals(m.group(0)))
+                  film.setDirector(m.group(1));
+               if (TD_ROLES.equals(m.group(0)))
+                  film.setRoles(m.group(1));
+               if (TD_ABOUT.equals(m.group(0)))
+                  film.setDescription(cleanHtml(m.group(1)));
+               if (TD_TITLE.equals(m.group(0)))
+                  film.setTitle(m.group(1));
+               if (TD_ORIG_TITLE.equals(m.group(0)))
+                  film.setOriginalTitle(m.group(1));
+               if (TD_YEAR.equals(m.group(0)))
+                  film.setYear(m.group(1));
+            }
          }
 
-         while(iter.hasNext() && previous != null) {
-            Element current = (Element) iter.next();
-
-            if (TD_COUNTRY.equals(previous.text()))
-               film.setCountry(current.text());
-            if (TD_GENRES.equals(previous.text()))
-               film.setGenre(current.text());
-            if (TD_DIRECTOR.equals(previous.text()))
-               film.setDirector(current.text());
-
-            previous = current;
-         }
-
-         Element rolesList = doc.select("#actorList ul").first();
-         if (rolesList != null) {
-            Elements roles = rolesList.select("li a");
-            film.setRoles(roles.stream().map(Element::text).collect(Collectors.joining(", ")));
-         }
-         film.setTitle(doc.select(".moviename-big").first().text());
-         film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
-         film.setKpRating(doc.select(".rating_ball").first().text());
-         film.setDescription(doc.select(".film-synopsys").first().text());
-*/
       }
       return film;
    }
+
 }

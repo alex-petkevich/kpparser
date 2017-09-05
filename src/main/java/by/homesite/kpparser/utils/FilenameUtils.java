@@ -1,7 +1,7 @@
 package by.homesite.kpparser.utils;
 
-import java.util.Arrays;
-import java.util.List;
+import org.jsoup.Jsoup;
+
 import java.util.stream.IntStream;
 
 /**
@@ -38,6 +38,10 @@ public class FilenameUtils {
       return "";
    }
 
+   public static String cleanHtml(String text) {
+      return Jsoup.parse(text).text();
+   }
+
    private static boolean isNumeric(String str)
    {
       return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
@@ -45,9 +49,11 @@ public class FilenameUtils {
 
    private static String[] prepareTitle(String name) {
       //crop extension
-      name = name.substring(0, name.lastIndexOf('.'));
+      int extPos = name.lastIndexOf('.');
+      if (extPos > 0)
+         name = name.substring(0, extPos);
       //replace all dots by spaces
-      name = name.replaceAll("[._\\-()]+", " ");
+      name = name.replaceAll("[._\\-()|]+", " ");
       //merge words if it is not a year
       return name.split("\\s+");
    }
