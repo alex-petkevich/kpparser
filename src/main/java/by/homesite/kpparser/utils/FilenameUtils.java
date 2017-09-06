@@ -1,6 +1,7 @@
 package by.homesite.kpparser.utils;
 
 import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import java.util.stream.IntStream;
 
@@ -18,7 +19,7 @@ public class FilenameUtils {
       StringBuilder result = new StringBuilder();
       String[] words = prepareTitle(name);
       for(String word: words) {
-         if (isNumeric(word) && IntStream.of(yearsRange).anyMatch(x -> String.valueOf(x).equals(word))) {
+         if (isProperYear(word)) {
             return result.toString().trim();
          }
          result.append(word).append(" ");
@@ -30,7 +31,7 @@ public class FilenameUtils {
    public static String extractYearFromFilename(String name) {
       String[] words = prepareTitle(name);
       for(String word: words) {
-         if (isNumeric(word) && IntStream.of(yearsRange).anyMatch(x -> String.valueOf(x).equals(word))) {
+         if (isProperYear(word)) {
             return word.trim();
          }
       }
@@ -39,12 +40,14 @@ public class FilenameUtils {
    }
 
    public static String cleanHtml(String text) {
-      return Jsoup.parse(text).text();
+      return Jsoup.clean(text, Whitelist.none());
    }
 
-   private static boolean isNumeric(String str)
+   private static boolean isProperYear(String str)
    {
-      return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+      final String year = (str.length() == 4) ? str.replace('O', '0') : str;
+
+      return year.matches("-?\\d+(\\.\\d+)?") && IntStream.of(yearsRange).anyMatch(x -> String.valueOf(x).equals(year));
    }
 
    private static String[] prepareTitle(String name) {

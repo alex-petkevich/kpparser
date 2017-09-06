@@ -39,14 +39,15 @@ public class RutorParser implements Parser {
 
    private static final Logger log = LoggerFactory.getLogger(RutorParser.class);
 
-   private static final String TD_COUNTRY = "Страна";
-   private static final String TD_GENRES = "Жанр";
-   private static final String TD_DIRECTOR = "Режиссер";
-   private static final String TD_ROLES = "В ролях";
-   private static final String TD_ABOUT = "Описание";
-   private static final String TD_TITLE = "Название";
+   private static final String TD_COUNTRY = "Страна:";
+   private static final String TD_GENRES = "Жанр:";
+   private static final String TD_DIRECTOR = "Режиссер:";
+   private static final String TD_ROLES = "В ролях:";
+   private static final String TD_ABOUT = "Описание:";
+   private static final String TD_ABOUT_EXT = "О фильме:";
+   private static final String TD_TITLE = "Название:";
    private static final String TD_ORIG_TITLE = "Оригинальное название";
-   private static final String TD_YEAR = "Год выпуска";
+   private static final String TD_YEAR = "Год выпуска:";
 
    @Autowired
    private HttpClient httpClient;
@@ -112,36 +113,41 @@ public class RutorParser implements Parser {
          if (infoTr == null ) {
             return film;
          }
-         Element info = doc.select("td").last();
+         Element info = infoTr.select("td").last();
 
          Element img = info.select("img").first();
          if (img != null)
             film.setImg(img.attr("src"));
 
-         String lines[] = info.text().split("<br\\s*/?>");
-         Pattern stringData = Pattern.compile("<b>(.+)</b>(.+)");
+         String lines[] = info.html().split("<br\\s*/?>");
+         Pattern stringData = Pattern.compile("<b>(.+?)</b>(.+)");
 
+         String about_ext = "";
          for(String line: lines) {
             Matcher m = stringData.matcher(line);
             if (m.find()) {
-               if (TD_COUNTRY.equals(m.group(0)))
-                  film.setCountry(m.group(1));
-               if (TD_GENRES.equals(m.group(0)))
-                  film.setGenre(cleanHtml(m.group(1)));
-               if (TD_DIRECTOR.equals(m.group(0)))
-                  film.setDirector(m.group(1));
-               if (TD_ROLES.equals(m.group(0)))
-                  film.setRoles(m.group(1));
-               if (TD_ABOUT.equals(m.group(0)))
-                  film.setDescription(cleanHtml(m.group(1)));
-               if (TD_TITLE.equals(m.group(0)))
-                  film.setTitle(m.group(1));
-               if (TD_ORIG_TITLE.equals(m.group(0)))
-                  film.setOriginalTitle(m.group(1));
-               if (TD_YEAR.equals(m.group(0)))
-                  film.setYear(m.group(1));
+               if (TD_COUNTRY.equals(m.group(1)))
+                  film.setCountry(m.group(2));
+               if (TD_GENRES.equals(m.group(1)))
+                  film.setGenre(cleanHtml(m.group(2)));
+               if (TD_DIRECTOR.equals(m.group(1)))
+                  film.setDirector(m.group(2));
+               if (TD_ROLES.equals(m.group(1)))
+                  film.setRoles(m.group(2));
+               if (TD_ABOUT.equals(m.group(1)))
+                  film.setDescription(cleanHtml(m.group(2)));
+               if (TD_ABOUT_EXT.equals(m.group(1)))
+                  about_ext = cleanHtml(m.group(2));
+               if (TD_TITLE.equals(m.group(1)))
+                  film.setTitle(m.group(2));
+               if (TD_ORIG_TITLE.equals(m.group(1)))
+                  film.setOriginalTitle(m.group(2));
+               if (TD_YEAR.equals(m.group(1)))
+                  film.setYear(cleanHtml(m.group(2)));
             }
          }
+         if (StringUtils.isEmpty(film.getDescription()))
+            film.setDescription(about_ext);
 
       }
       return film;
