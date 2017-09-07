@@ -40,6 +40,7 @@ public class RutorParser implements Parser {
    private static final Logger log = LoggerFactory.getLogger(RutorParser.class);
 
    private static final String TD_COUNTRY = "Страна:";
+   private static final String TD_PRODUCED = "Производство:";
    private static final String TD_GENRES = "Жанр:";
    private static final String TD_DIRECTOR = "Режиссер:";
    private static final String TD_ROLES = "В ролях:";
@@ -120,34 +121,55 @@ public class RutorParser implements Parser {
             film.setImg(img.attr("src"));
 
          String lines[] = info.html().split("<br\\s*/?>");
-         Pattern stringData = Pattern.compile("<b>(.+?)</b>(.+)");
+         Pattern stringData = Pattern.compile("<b>(.+?)</b>(.*)");
 
          String about_ext = "";
+         String produced = "";
          for(String line: lines) {
             Matcher m = stringData.matcher(line);
             if (m.find()) {
-               if (TD_COUNTRY.equals(m.group(1)))
+               if (TD_COUNTRY.equalsIgnoreCase(m.group(1)))
                   film.setCountry(m.group(2));
-               if (TD_GENRES.equals(m.group(1)))
+               if (TD_PRODUCED.equalsIgnoreCase(m.group(1)))
+                  produced = m.group(2);
+               if (TD_GENRES.equalsIgnoreCase(m.group(1)))
                   film.setGenre(cleanHtml(m.group(2)));
-               if (TD_DIRECTOR.equals(m.group(1)))
+               if (TD_DIRECTOR.equalsIgnoreCase(m.group(1)))
                   film.setDirector(m.group(2));
-               if (TD_ROLES.equals(m.group(1)))
+               if (TD_ROLES.equalsIgnoreCase(m.group(1)))
                   film.setRoles(m.group(2));
-               if (TD_ABOUT.equals(m.group(1)))
+               if (TD_ABOUT.equalsIgnoreCase(m.group(1)))
                   film.setDescription(cleanHtml(m.group(2)));
-               if (TD_ABOUT_EXT.equals(m.group(1)))
+               if (TD_ABOUT_EXT.equalsIgnoreCase(m.group(1)))
                   about_ext = cleanHtml(m.group(2));
-               if (TD_TITLE.equals(m.group(1)))
+               if (TD_TITLE.equalsIgnoreCase(m.group(1)))
                   film.setTitle(m.group(2));
-               if (TD_ORIG_TITLE.equals(m.group(1)))
+               if (TD_ORIG_TITLE.equalsIgnoreCase(m.group(1)))
                   film.setOriginalTitle(m.group(2));
-               if (TD_YEAR.equals(m.group(1)))
+               if (TD_YEAR.equalsIgnoreCase(m.group(1)))
                   film.setYear(cleanHtml(m.group(2)));
             }
          }
          if (StringUtils.isEmpty(film.getDescription()))
             film.setDescription(about_ext);
+         if (StringUtils.isEmpty(film.getCountry()))
+            film.setCountry(cleanHtml(produced));
+         if (StringUtils.isEmpty(film.getRoles())) {
+            int foundLine = 0;
+            for(String line: lines) {
+               if (foundLine == 2) {
+                  film.setRoles(cleanHtml(line));
+                  break;
+               }
+               if (foundLine == 1)
+                  foundLine++;
+               Matcher m = stringData.matcher(line);
+               if (m.find() && TD_ROLES.equalsIgnoreCase(m.group(1))) {
+                  foundLine = 1;
+               }
+            }
+         }
+
 
       }
       return film;
