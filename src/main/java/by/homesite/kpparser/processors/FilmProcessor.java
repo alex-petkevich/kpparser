@@ -46,7 +46,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
 
       for (String input: inputParsers) {
          filmInfo = parseSingleSystem(input, inputFile);
-         if (filmInfo != null) {
+         if (filmInfo != null && !StringUtils.isEmpty(filmInfo.getDescription())) {
             return filmInfo;
          }
       }
