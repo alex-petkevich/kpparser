@@ -19,9 +19,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static by.homesite.kpparser.utils.Constants.CHARSET;
+import static by.homesite.kpparser.utils.FilenameUtils.cleanHtml;
 
 /**
  * @author alex on 9/10/17.
@@ -33,9 +36,10 @@ public class IMDBParser implements Parser {
 
    private static final Logger log = LoggerFactory.getLogger(IMDBParser.class);
 
-   private static final String TD_COUNTRY = "страна";
-   private static final String TD_GENRES = "жанр";
-   private static final String TD_DIRECTOR = "режиссер";
+   private static final String TD_COUNTRY = "Country:";
+   private static final String TD_GENRES = "Genres:";
+   private static final String TD_DIRECTOR = "Director:";
+   private static final String TD_ROLES = "Stars:";
 
    @Autowired
    private HttpClient httpClient;
@@ -79,7 +83,7 @@ public class IMDBParser implements Parser {
       }
       int startBracket = blockContent.indexOf("(");
       int endBracket = blockContent.indexOf(")");
-      return blockContent.substring(startBracket + 1, endBracket - 1);
+      return blockContent.substring(startBracket + 1, endBracket);
    }
 
    @Override
@@ -99,41 +103,38 @@ public class IMDBParser implements Parser {
             return film;
          }
 
-         Element img = doc.select(".popupBigImage img").first();
+         Element img = doc.select(".poster img").first();
          if (img != null)
-            film.setImg(img.attr("src"));
-         Elements info = doc.select(".info td");
-         ListIterator iter = info.listIterator();
-         Element previous = null;
-         if (iter.hasNext())
-         {
-            previous = (Element) iter.next();
-         }
+            film.setImg(extractBigImg(img.attr("src")));
 
-         while(iter.hasNext() && previous != null) {
-            Element current = (Element) iter.next();
+         film.setCountry(extractTag(doc, ".txt-block", TD_COUNTRY));
+         film.setDirector(extractTag(doc, ".credit_summary_item", TD_DIRECTOR));
+         film.setGenre(extractTag(doc, ".see-more", TD_GENRES));
+         film.setRoles(extractTag(doc, ".credit_summary_item", TD_ROLES));
 
-            if (TD_COUNTRY.equals(previous.text()))
-               film.setCountry(current.text());
-            if (TD_GENRES.equals(previous.text()))
-               film.setGenre(current.text());
-            if (TD_DIRECTOR.equals(previous.text()))
-               film.setDirector(current.text());
-
-            previous = current;
-         }
-
-         Element rolesList = doc.select("#actorList ul").first();
-         if (rolesList != null) {
-            Elements roles = rolesList.select("li a");
-            film.setRoles(roles.stream().map(Element::text).collect(Collectors.joining(", ")));
-         }
-         film.setTitle(doc.select(".moviename-big").first().text());
-         film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
-         film.setKpRating(doc.select(".rating_ball").first().text());
-         film.setDescription(doc.select(".film-synopsys").first().text());
+         film.setDescription(doc.select("div[itemprop=description]").first().text());
 
       }
       return film;
+   }
+
+   private String extractBigImg(String src) {
+      // BUG
+      return src.replaceFirst(".+@(.*)\\.", "");
+   }
+
+   private String extractTag(Document doc, String selector, String tag) {
+      Elements info = doc.select(selector);
+      for (Element element: info) {
+         Element blockName = element.select("h4").first();
+
+         if (blockName != null && tag.equalsIgnoreCase(blockName.text())) {
+            Elements countries = element.select("a");
+            //TODO: comma separated
+            return cleanHtml(countries.text());
+         }
+
+      }
+      return "";
    }
 }
