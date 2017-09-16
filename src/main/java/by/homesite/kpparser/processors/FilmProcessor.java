@@ -4,6 +4,7 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 import by.homesite.kpparser.parsers.Parser;
+import by.homesite.kpparser.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +33,12 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
    @Value("${inputSystem}")
    private String inputSystem;
 
+   @Value("${rescanExistingDescriptions}")
+   private Boolean rescanExistingDescriptions;
+
+   @Value("${saveDescriptionsFolder}")
+   private String saveDescriptionsFolder;
+
    @Autowired
    private
    Map<String, Parser> parsers = new HashMap<>();
@@ -37,6 +47,14 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
    public Film process(final FileInfo inputFile) throws Exception {
 
       log.info("Converting {}...", inputFile.getName());
+
+      if (Boolean.TRUE != rescanExistingDescriptions) {
+         Path outputFileName = Paths.get(saveDescriptionsFolder + inputFile.getName() + Constants.TEXT_OUTPUT_EXTENSION);
+         if (Files.exists(outputFileName)) {
+            return null;
+         }
+      }
+
       Film filmInfo = null;
 
       if (inputSystem == null) {

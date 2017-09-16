@@ -67,6 +67,9 @@ public class PlainTextSaverStrategy implements SaverStrategy {
    }
 
    private void saveImage(String img, String fileName) {
+      if (img.lastIndexOf('.') < 0)
+         return;
+
       String ext = img.substring(img.lastIndexOf('.'));
 
       Path outputFileName = Paths.get(saveDescriptionsFolder + fileName + ext);
