@@ -51,6 +51,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
       if (Boolean.TRUE != rescanExistingDescriptions) {
          Path outputFileName = Paths.get(saveDescriptionsFolder + inputFile.getName() + Constants.TEXT_OUTPUT_EXTENSION);
          if (Files.exists(outputFileName)) {
+            log.info("skipped (already exists)", inputFile.getName());
             return null;
          }
       }
