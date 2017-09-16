@@ -119,8 +119,7 @@ public class IMDBParser implements Parser {
    }
 
    private String extractBigImg(String src) {
-      // BUG
-      return src.replaceFirst(".+@(.*)\\.", "");
+      return src.replaceFirst("([^@]*)\\.([^\\.]+)$", ".$2");
    }
 
    private String extractTag(Document doc, String selector, String tag) {
@@ -130,8 +129,7 @@ public class IMDBParser implements Parser {
 
          if (blockName != null && tag.equalsIgnoreCase(blockName.text())) {
             Elements countries = element.select("a");
-            //TODO: comma separated
-            return cleanHtml(countries.text());
+            return cleanHtml(countries.stream().map(Element::text).collect(Collectors.joining(", ")));
          }
 
       }
