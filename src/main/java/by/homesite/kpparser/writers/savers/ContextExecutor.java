@@ -28,4 +28,14 @@ public class ContextExecutor {
       if (saver != null)
          saver.doSave(item);
    }
+
+   public boolean isFileExists(String fileName, SaverTypes type) {
+
+      SaverStrategy saver = saverStrategies.get(type.toString());
+
+      if (saver != null)
+         return saver.isFileExists(fileName);
+
+      return false;
+   }
 }

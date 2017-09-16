@@ -26,11 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author alex on 6/29/17.
+ * @author alex on 9/16/17.
  */
-@Component(Constants.TEXT_OUTPUT_FORMAT)
-public class PlainTextSaverStrategy implements SaverStrategy {
-   private static final Logger log = LoggerFactory.getLogger(PlainTextSaverStrategy.class);
+@Component(Constants.JSON_OUTPUT_FORMAT)
+public class JsonSaverStrategy implements SaverStrategy {
+   private static final Logger log = LoggerFactory.getLogger(JsonSaverStrategy.class);
 
    @Autowired
    private Configuration freemarkerConfig;
@@ -45,14 +45,14 @@ public class PlainTextSaverStrategy implements SaverStrategy {
    public void doSave(Film item) {
       Map root = new HashMap<String, Object>();
       root.put("film", item);
-      Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.TEXT_OUTPUT_EXTENSION);
+      Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.JSON_OUTPUT_EXTENSION);
       if (isFileExists(item.getFileName())) {
          return;
       }
 
       try (Writer out = Files.newBufferedWriter(outputFileName, Charset.defaultCharset())) {
 
-         Template template = freemarkerConfig.getTemplate(SaverTypes.TEXT.toString() + Constants.FREEMARKER_TEMPLATES_EXTENSIONS);
+         Template template = freemarkerConfig.getTemplate(SaverTypes.JSON.toString() + Constants.FREEMARKER_TEMPLATES_EXTENSIONS);
          template.process(root, out);
 
       } catch (IOException e) {
@@ -68,7 +68,7 @@ public class PlainTextSaverStrategy implements SaverStrategy {
 
    @Override
    public boolean isFileExists(String fileName) {
-      Path outputFileName = Paths.get(saveDescriptionsFolder + fileName + Constants.TEXT_OUTPUT_EXTENSION);
+      Path outputFileName = Paths.get(saveDescriptionsFolder + fileName + Constants.JSON_OUTPUT_EXTENSION);
       return  (Files.exists(outputFileName) && Boolean.TRUE != rescanExistingDescriptions);
    }
 

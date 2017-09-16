@@ -5,6 +5,7 @@ import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 import by.homesite.kpparser.parsers.Parser;
 import by.homesite.kpparser.utils.Constants;
+import by.homesite.kpparser.writers.FileItemWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,11 +35,8 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
    @Value("${inputSystem}")
    private String inputSystem;
 
-   @Value("${rescanExistingDescriptions}")
-   private Boolean rescanExistingDescriptions;
-
-   @Value("${saveDescriptionsFolder}")
-   private String saveDescriptionsFolder;
+   @Autowired
+   private FileItemWriter fileItemWriter;
 
    @Autowired
    private
@@ -48,12 +47,8 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
 
       log.info("Converting {}...", inputFile.getName());
 
-      if (Boolean.TRUE != rescanExistingDescriptions) {
-         Path outputFileName = Paths.get(saveDescriptionsFolder + inputFile.getName() + Constants.TEXT_OUTPUT_EXTENSION);
-         if (Files.exists(outputFileName)) {
-            log.info("skipped (already exists)", inputFile.getName());
-            return null;
-         }
+      if (fileItemWriter.isFileExists(inputFile.getName())) {
+         return null;
       }
 
       Film filmInfo = null;

@@ -7,4 +7,6 @@ import by.homesite.kpparser.model.Film;
  */
 public interface SaverStrategy {
    void doSave(Film item);
+
+   boolean isFileExists(String fileName);
 }

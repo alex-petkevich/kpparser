@@ -30,6 +30,10 @@ public class FileItemWriter implements ItemWriter<Film> {
       items.forEach(item -> contextExecutor.save(item, SaverTypes.valueOf(outputFormat)));
    }
 
+   public boolean isFileExists(String fileName) {
+      return contextExecutor.isFileExists(fileName, SaverTypes.valueOf(outputFormat));
+   }
+
    public void setResource(Resource resource) {
       this.resource = resource;
    }
