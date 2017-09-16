@@ -3,6 +3,7 @@ package by.homesite.kpparser.writers.savers;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.utils.SaverTypes;
+import com.google.gson.Gson;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -43,8 +44,6 @@ public class JsonSaverStrategy implements SaverStrategy {
 
    @Override
    public void doSave(Film item) {
-      Map root = new HashMap<String, Object>();
-      root.put("film", item);
       Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.JSON_OUTPUT_EXTENSION);
       if (isFileExists(item.getFileName())) {
          return;
@@ -52,13 +51,11 @@ public class JsonSaverStrategy implements SaverStrategy {
 
       try (Writer out = Files.newBufferedWriter(outputFileName, Charset.defaultCharset())) {
 
-         Template template = freemarkerConfig.getTemplate(SaverTypes.JSON.toString() + Constants.FREEMARKER_TEMPLATES_EXTENSIONS);
-         template.process(root, out);
+         Gson gson = new Gson();
+         gson.toJson(item, out);
 
       } catch (IOException e) {
          log.error("Can't write output file {}", SaverTypes.TEXT.toString());
-      } catch (TemplateException e) {
-         log.error("Can't process output template for {}", SaverTypes.TEXT.toString());
       }
 
       if (!StringUtils.isEmpty(item.getImg())) {
