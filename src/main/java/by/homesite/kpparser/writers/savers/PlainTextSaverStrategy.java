@@ -29,14 +29,11 @@ import java.util.Map;
  * @author alex on 6/29/17.
  */
 @Component(Constants.TEXT_OUTPUT_FORMAT)
-public class PlainTextSaverStrategy implements SaverStrategy {
+public class PlainTextSaverStrategy extends AbstractSaverStrategy implements SaverStrategy {
    private static final Logger log = LoggerFactory.getLogger(PlainTextSaverStrategy.class);
 
    @Autowired
    private Configuration freemarkerConfig;
-
-   @Value("${saveDescriptionsFolder}")
-   private String saveDescriptionsFolder;
 
    @Value("${rescanExistingDescriptions}")
    private Boolean rescanExistingDescriptions;
@@ -70,23 +67,5 @@ public class PlainTextSaverStrategy implements SaverStrategy {
    public boolean isFileExists(String fileName) {
       Path outputFileName = Paths.get(saveDescriptionsFolder + fileName + Constants.TEXT_OUTPUT_EXTENSION);
       return  (Files.exists(outputFileName) && Boolean.TRUE != rescanExistingDescriptions);
-   }
-
-   private void saveImage(String img, String fileName) {
-      if (img.lastIndexOf('.') < 0)
-         return;
-
-      String ext = img.substring(img.lastIndexOf('.'));
-
-      Path outputFileName = Paths.get(saveDescriptionsFolder + fileName + ext);
-
-      try(InputStream in = new URL(img).openStream()){
-         Files.copy(in, outputFileName);
-      } catch (MalformedURLException e) {
-         log.error("Incorrect URL for image {}", img);
-      } catch (IOException e) {
-         log.error("Can't save image {}", fileName);
-      }
-
    }
 }
