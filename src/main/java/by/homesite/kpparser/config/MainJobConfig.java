@@ -6,6 +6,7 @@ import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
 import by.homesite.kpparser.writers.FileItemWriter;
+import com.google.gson.Gson;
 import freemarker.template.TemplateExceptionHandler;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -105,6 +106,11 @@ public class MainJobConfig implements ResourceLoaderAware {
       configurer.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
       configurer.setLogTemplateExceptions(false);
       return configurer;
+   }
+
+   @Bean
+   public Gson gsonConfig() {
+      return new Gson();
    }
 
 }

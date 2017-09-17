@@ -1,8 +1,11 @@
 package by.homesite.kpparser.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author alex on 4/30/17.
  */
+@XmlRootElement
 public class Film {
    private String title;
    private String year;
