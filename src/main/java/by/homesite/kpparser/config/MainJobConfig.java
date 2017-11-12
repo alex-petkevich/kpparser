@@ -5,6 +5,7 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
+import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.writers.FileItemWriter;
 import com.google.gson.Gson;
 import freemarker.template.TemplateExceptionHandler;
@@ -30,7 +31,6 @@ import java.io.IOException;
  * @author alex on 5/1/17.
  */
 @Configuration
-@PropertySource("classpath:application.properties")
 @EnableBatchProcessing
 public class MainJobConfig implements ResourceLoaderAware {
 
@@ -45,6 +45,9 @@ public class MainJobConfig implements ResourceLoaderAware {
 
    @Value("${locaitonPattern}")
    private String locaitonPattern;
+
+   @Value("${blocksQty}")
+   private int blocksQty;
 
    private ResourceLoader resourceLoader;
 
@@ -85,7 +88,7 @@ public class MainJobConfig implements ResourceLoaderAware {
    @Bean
    public Step step1() throws IOException {
       return stepBuilderFactory.get("step1")
-            .<FileInfo, Film> chunk(3)
+            .<FileInfo, Film> chunk(blocksQty)
             .reader(multiResourceItemReader())
             .processor(processor())
             .writer(writer())
@@ -101,8 +104,8 @@ public class MainJobConfig implements ResourceLoaderAware {
    @Bean(name ="freemarkerConfig")
    public freemarker.template.Configuration freemarkerConfig() throws IOException {
       freemarker.template.Configuration configurer = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
-      configurer.setClassForTemplateLoading(this.getClass(), "/templates");
-      configurer.setDefaultEncoding("UTF-8");
+      configurer.setClassForTemplateLoading(this.getClass(), Constants.TEMPLATES);
+      configurer.setDefaultEncoding(Constants.CHARSET);
       configurer.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
       configurer.setLogTemplateExceptions(false);
       return configurer;
