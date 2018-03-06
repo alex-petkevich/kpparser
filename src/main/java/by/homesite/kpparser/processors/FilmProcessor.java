@@ -4,7 +4,6 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 import by.homesite.kpparser.parsers.Parser;
-import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.writers.FileItemWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +51,9 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
       if (inputSystem == null) {
          return null;
       }
-      List<String> inputParsers = Arrays.stream(inputSystem.split(",")).map(String::trim).collect(Collectors.toList());
+      List<String> inputParsers = Arrays.stream(inputSystem.split(","))
+              .map(String::trim)
+              .collect(Collectors.toList());
 
       for (String input: inputParsers) {
          filmInfo = parseSingleSystem(input, inputFile);

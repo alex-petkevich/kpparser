@@ -3,13 +3,14 @@ package by.homesite.kpparser.utils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import java.util.Calendar;
 import java.util.stream.IntStream;
 
 /**
  * @author alex on 6/27/17.
  */
 public class FilenameUtils {
-   private static int[] yearsRange = IntStream.range(1930, 2020).toArray();
+   private static int[] yearsRange = IntStream.range(1900, Calendar.getInstance().get(Calendar.YEAR) + 3).toArray();
 
    private FilenameUtils() {
 
@@ -31,8 +32,9 @@ public class FilenameUtils {
    public static String extractYearFromFilename(String name) {
       String[] words = prepareTitle(name);
       for(String word: words) {
-         if (isProperYear(word)) {
-            return word.trim();
+         final String year = (word.length() == 4) ? word.replace('O', '0') : word;
+         if (isProperYear(year)) {
+            return year.trim();
          }
       }
 
@@ -45,9 +47,7 @@ public class FilenameUtils {
 
    private static boolean isProperYear(String str)
    {
-      final String year = (str.length() == 4) ? str.replace('O', '0') : str;
-
-      return year.matches("-?\\d+(\\.\\d+)?") && IntStream.of(yearsRange).anyMatch(x -> String.valueOf(x).equals(year));
+      return str.matches("-?\\d+(\\.\\d+)?") && IntStream.of(yearsRange).anyMatch(x -> String.valueOf(x).equals(str));
    }
 
    private static String[] prepareTitle(String name) {

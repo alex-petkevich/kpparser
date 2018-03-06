@@ -2,7 +2,7 @@ package by.homesite.kpparser.writers;
 
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.writers.savers.ContextExecutor;
-import by.homesite.kpparser.utils.SaverTypes;
+import by.homesite.kpparser.config.SaverTypes;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

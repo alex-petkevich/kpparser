@@ -1,4 +1,4 @@
-package by.homesite.kpparser.utils;
+package by.homesite.kpparser.config;
 
 /**
  * @author alex on 6/29/17.

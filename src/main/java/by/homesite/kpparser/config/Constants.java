@@ -1,4 +1,4 @@
-package by.homesite.kpparser.utils;
+package by.homesite.kpparser.config;
 
 /**
  * @author alex on 7/2/17.
@@ -21,6 +21,7 @@ public class Constants {
 
    // general
    public static final String CHARSET = "UTF-8";
+   public static final String TEMPLATES = "/templates/";
 
    private Constants() {
 

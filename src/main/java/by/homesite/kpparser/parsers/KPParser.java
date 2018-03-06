@@ -5,10 +5,7 @@ import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 
 import by.homesite.kpparser.net.HttpClient;
-import by.homesite.kpparser.utils.Constants;
-import by.homesite.kpparser.net.IProxy;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
+import by.homesite.kpparser.config.Constants;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,7 +20,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static by.homesite.kpparser.utils.Constants.CHARSET;
+import static by.homesite.kpparser.config.Constants.CHARSET;
 
 /**
  * @author alex on 5/1/17.

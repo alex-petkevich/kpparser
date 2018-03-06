@@ -1,8 +1,8 @@
 package by.homesite.kpparser.writers.savers;
 
 import by.homesite.kpparser.model.Film;
-import by.homesite.kpparser.utils.Constants;
-import by.homesite.kpparser.utils.SaverTypes;
+import by.homesite.kpparser.config.Constants;
+import by.homesite.kpparser.config.SaverTypes;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -14,10 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;

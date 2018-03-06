@@ -5,7 +5,6 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.processors.FilmProcessor;
 import by.homesite.kpparser.readers.FilenameItemReader;
-import by.homesite.kpparser.utils.Constants;
 import by.homesite.kpparser.writers.FileItemWriter;
 import com.google.gson.Gson;
 import freemarker.template.TemplateExceptionHandler;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -43,8 +41,8 @@ public class MainJobConfig implements ResourceLoaderAware {
    @Value("${scanFilesFolder}")
    private String scanFilesFolder;
 
-   @Value("${locaitonPattern}")
-   private String locaitonPattern;
+   @Value("${locationPattern}")
+   private String locationPattern;
 
    @Value("${blocksQty}")
    private int blocksQty;
@@ -56,7 +54,7 @@ public class MainJobConfig implements ResourceLoaderAware {
    public MultiResourceItemReader multiResourceItemReader() throws IOException {
 
       MultiResourceItemReader reader = new MultiResourceItemReader();
-      reader.setResources(new PathMatchingResourcePatternResolver().getResources(scanFilesFolder + locaitonPattern));
+      reader.setResources(new PathMatchingResourcePatternResolver().getResources(scanFilesFolder + locationPattern));
 
       reader.setDelegate(new FilenameItemReader());
 

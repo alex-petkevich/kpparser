@@ -4,10 +4,7 @@ import by.homesite.kpparser.model.FileInfo;
 import by.homesite.kpparser.model.Film;
 import by.homesite.kpparser.model.SearchResultItem;
 import by.homesite.kpparser.net.HttpClient;
-import by.homesite.kpparser.net.IProxy;
-import by.homesite.kpparser.utils.Constants;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
+import by.homesite.kpparser.config.Constants;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -22,9 +19,8 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static by.homesite.kpparser.utils.Constants.CHARSET;
+import static by.homesite.kpparser.config.Constants.CHARSET;
 import static by.homesite.kpparser.utils.FilenameUtils.cleanHtml;
 import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 

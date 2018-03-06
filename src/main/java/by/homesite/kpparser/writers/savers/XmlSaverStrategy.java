@@ -1,9 +1,8 @@
 package by.homesite.kpparser.writers.savers;
 
 import by.homesite.kpparser.model.Film;
-import by.homesite.kpparser.utils.Constants;
-import by.homesite.kpparser.utils.SaverTypes;
-import com.google.gson.Gson;
+import by.homesite.kpparser.config.Constants;
+import by.homesite.kpparser.config.SaverTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
