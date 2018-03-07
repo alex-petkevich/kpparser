@@ -32,11 +32,9 @@ import java.io.IOException;
 @EnableBatchProcessing
 public class MainJobConfig implements ResourceLoaderAware {
 
-   @Autowired
-   public JobBuilderFactory jobBuilderFactory;
+   private final JobBuilderFactory jobBuilderFactory;
 
-   @Autowired
-   public StepBuilderFactory stepBuilderFactory;
+   private final StepBuilderFactory stepBuilderFactory;
 
    @Value("${scanFilesFolder}")
    private String scanFilesFolder;
@@ -48,6 +46,12 @@ public class MainJobConfig implements ResourceLoaderAware {
    private int blocksQty;
 
    private ResourceLoader resourceLoader;
+
+   @Autowired
+   public MainJobConfig(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+      this.jobBuilderFactory = jobBuilderFactory;
+      this.stepBuilderFactory = stepBuilderFactory;
+   }
 
    // tag::readerwriterprocessor[]
    @Bean
@@ -100,7 +104,7 @@ public class MainJobConfig implements ResourceLoaderAware {
    // end::jobstep[]
 
    @Bean(name ="freemarkerConfig")
-   public freemarker.template.Configuration freemarkerConfig() throws IOException {
+   public freemarker.template.Configuration freemarkerConfig() {
       freemarker.template.Configuration configurer = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
       configurer.setClassForTemplateLoading(this.getClass(), Constants.TEMPLATES);
       configurer.setDefaultEncoding(Constants.CHARSET);

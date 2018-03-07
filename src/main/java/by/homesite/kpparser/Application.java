@@ -16,20 +16,20 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class Application implements ApplicationRunner {
 
-   public static final String SCAN_FILES_OPTION = "scanFilesFolder";
-   public static final String HELP_OPTION = "help";
+   private static final String SCAN_FILES_OPTION = "scanFilesFolder";
+   private static final String HELP_OPTION = "help";
    
    @Value("${defaultSettings}")
    private boolean defaultSettings;
 
-   public static void main(String... args) throws Exception {
+   public static void main(String... args) {
       SpringApplication app = new SpringApplication(Application.class);
       app.setBannerMode(Banner.Mode.OFF);
       app.run(args);
    }
 
    @Override
-   public void run(ApplicationArguments args) throws Exception {
+   public void run(ApplicationArguments args) {
       if (args.getOptionNames().contains(HELP_OPTION)) {
          displayCommandLineHelp();
       }

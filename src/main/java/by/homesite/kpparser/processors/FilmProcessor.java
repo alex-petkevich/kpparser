@@ -70,7 +70,7 @@ public class FilmProcessor implements ItemProcessor<FileInfo, Film> {
      Film filmInfo = null;
 
       if (!parsers.containsKey(input)) {
-         return filmInfo;
+         return null;
       }
 
       Parser infoParser = parsers.get(input);

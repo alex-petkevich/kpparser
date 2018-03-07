@@ -1,5 +1,7 @@
 package by.homesite.kpparser.config;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author alex on 7/2/17.
  */
@@ -20,7 +22,7 @@ public class Constants {
    public static final String INPUT_SYSTEMS_IMDB = "imdb";
 
    // general
-   public static final String CHARSET = "UTF-8";
+   public static final String CHARSET = StandardCharsets.UTF_8.toString();
    public static final String TEMPLATES = "/templates/";
 
    private Constants() {

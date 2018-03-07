@@ -18,10 +18,14 @@ import java.util.Map;
 @Service
 public class HttpClient {
 
-   @Autowired
-   private IProxy proxy;
+   private final IProxy proxy;
    private Map<String, String> cookies = new HashMap<>();
    private static final Logger log = LoggerFactory.getLogger(HttpClient.class);
+
+   @Autowired
+   public HttpClient(IProxy proxy) {
+      this.proxy = proxy;
+   }
 
    public Document get(String url) {
       Document doc;

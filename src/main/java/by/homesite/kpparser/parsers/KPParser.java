@@ -36,8 +36,12 @@ public class KPParser implements Parser {
    private static final String TD_GENRES = "жанр";
    private static final String TD_DIRECTOR = "режиссер";
 
+   private final HttpClient httpClient;
+
    @Autowired
-   private HttpClient httpClient;
+   public KPParser(HttpClient httpClient) {
+      this.httpClient = httpClient;
+   }
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
@@ -53,7 +57,7 @@ public class KPParser implements Parser {
       }
       Elements blocks = doc.select(".element");
       if (blocks.size() > 0) {
-         List<SearchResultItem> result = new ArrayList();
+         List<SearchResultItem> result = new ArrayList<>();
 
          for (Element block : blocks) {
             SearchResultItem item = new SearchResultItem();
@@ -79,7 +83,7 @@ public class KPParser implements Parser {
       film.setFileName(inputFile.getName());
       film.setYear(inputFile.getYear());
 
-      if (!StringUtils.isEmpty(searchItem.getUrl())) {
+      if (searchItem != null && !StringUtils.isEmpty(searchItem.getUrl())) {
          film.setUrl(searchItem.getUrl());
          film.setTitle(searchItem.getTitle());
 
@@ -118,12 +122,20 @@ public class KPParser implements Parser {
             Elements roles = rolesList.select("li a");
             film.setRoles(roles.stream().map(Element::text).collect(Collectors.joining(", ")));
          }
-         film.setTitle(doc.select(".moviename-big").first().text());
-         film.setOriginalTitle(doc.select("span[itemprop=alternativeHeadline]").first().text());
-         film.setKpRating(doc.select(".rating_ball").first().text());
-         film.setDescription(doc.select(".film-synopsys").first().text());
+         film.setTitle(getElementValue(doc, ".moviename-big"));
+         film.setOriginalTitle(getElementValue(doc, "span[itemprop=alternativeHeadline]"));
+         film.setKpRating(getElementValue(doc, ".rating_ball"));
+         film.setDescription(getElementValue(doc, ".film-synopsys"));
 
       }
       return film;
+   }
+   
+   private String getElementValue(Document doc, String name) {
+      Element element = doc.select(name).first();
+      if (element != null) {
+         return element.text();
+      }
+      return "";
    }
 }

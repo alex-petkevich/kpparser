@@ -29,15 +29,19 @@ import java.util.Map;
 public class PlainTextSaverStrategy extends AbstractSaverStrategy implements SaverStrategy {
    private static final Logger log = LoggerFactory.getLogger(PlainTextSaverStrategy.class);
 
-   @Autowired
-   private Configuration freemarkerConfig;
+   private final Configuration freemarkerConfig;
 
    @Value("${rescanExistingDescriptions}")
    private Boolean rescanExistingDescriptions;
 
+   @Autowired
+   public PlainTextSaverStrategy(Configuration freemarkerConfig) {
+      this.freemarkerConfig = freemarkerConfig;
+   }
+
    @Override
    public void doSave(Film item) {
-      Map root = new HashMap<String, Object>();
+      Map<String, Object> root = new HashMap<>();
       root.put("film", item);
       Path outputFileName = Paths.get(saveDescriptionsFolder + item.getFileName() + Constants.TEXT_OUTPUT_EXTENSION);
       if (isFileExists(item.getFileName())) {

@@ -45,11 +45,10 @@ public class ProxyResolver implements IProxy {
             return null;
          }
          int port = Integer.parseInt(proxyItem[1].trim());
-         Proxy proxyResult = new Proxy(
+         return new Proxy(
                Proxy.Type.HTTP,
                InetSocketAddress.createUnresolved(proxyItem[0], port)
          );
-         return proxyResult;
       }
       return null;
    }

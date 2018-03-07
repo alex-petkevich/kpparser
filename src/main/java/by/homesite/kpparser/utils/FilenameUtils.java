@@ -10,23 +10,31 @@ import java.util.stream.IntStream;
  * @author alex on 6/27/17.
  */
 public class FilenameUtils {
-   private static int[] yearsRange = IntStream.range(1900, Calendar.getInstance().get(Calendar.YEAR) + 3).toArray();
+   private static final int[] yearsRange = IntStream.range(1900, Calendar.getInstance().get(Calendar.YEAR) + 3).toArray();
 
    private FilenameUtils() {
 
    }
 
    public static String extractTitleFromFilename(String name) {
+      String title = null; 
       StringBuilder result = new StringBuilder();
       String[] words = prepareTitle(name);
       for(String word: words) {
-         if (isProperYear(word)) {
-            return result.toString().trim();
+         if (isProperYear(word) && title == null) {
+             title = result.toString().trim();
          }
          result.append(word).append(" ");
       }
-
-      return result.toString().trim();
+      if (title == null) {
+         title = "";
+      }
+      
+      if (title.indexOf("[") > 0) {
+          title = title.substring(title.indexOf("[") + 1, title.indexOf("]"));
+      }
+      
+      return title.trim();
    }
 
    public static String extractYearFromFilename(String name) {

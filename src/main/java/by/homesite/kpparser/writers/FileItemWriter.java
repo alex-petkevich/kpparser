@@ -25,7 +25,7 @@ public class FileItemWriter implements ItemWriter<Film> {
    private String outputFormat;
 
    @Override
-   public void write(List<? extends Film> items) throws Exception {
+   public void write(List<? extends Film> items) {
 
       items.forEach(item -> contextExecutor.save(item, SaverTypes.valueOf(outputFormat)));
    }

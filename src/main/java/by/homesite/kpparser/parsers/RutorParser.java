@@ -46,8 +46,12 @@ public class RutorParser implements Parser {
    private static final String TD_ORIG_TITLE = "Оригинальное название";
    private static final String TD_YEAR = "Год выпуска:";
 
+   private final HttpClient httpClient;
+
    @Autowired
-   private HttpClient httpClient;
+   public RutorParser(HttpClient httpClient) {
+      this.httpClient = httpClient;
+   }
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
@@ -65,7 +69,7 @@ public class RutorParser implements Parser {
 
       Elements blocks = doc.select(".gai,.tum");
       if (blocks.size() > 0) {
-         List<SearchResultItem> result = new ArrayList();
+         List<SearchResultItem> result = new ArrayList<>();
 
          for (Element block : blocks) {
             SearchResultItem item = new SearchResultItem();

@@ -16,7 +16,7 @@ import static by.homesite.kpparser.utils.FilenameUtils.extractYearFromFilename;
 public class FilenameItemReader extends FlatFileItemReader<FileInfo> {
 
    private Resource myresource;
-   private Queue<String> alreadyRead = new ConcurrentLinkedQueue<>();
+   private final Queue<String> alreadyRead = new ConcurrentLinkedQueue<>();
 
    @Override
    public void setResource(Resource var1) {

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,8 +16,12 @@ import java.util.Map;
 public class ContextExecutor {
    private static final Logger log = LoggerFactory.getLogger(ContextExecutor.class);
 
+   private final Map<String, SaverStrategy> saverStrategies;
+
    @Autowired
-   Map<String, SaverStrategy> saverStrategies = new HashMap<>();
+   public ContextExecutor(Map<String, SaverStrategy> saverStrategies) {
+      this.saverStrategies = saverStrategies;
+   }
 
    public void save(Film item, SaverTypes type) {
       log.info("Save data for: {}", item.getTitle());
@@ -33,9 +36,7 @@ public class ContextExecutor {
 
       SaverStrategy saver = saverStrategies.get(type.toString());
 
-      if (saver != null)
-         return saver.isFileExists(fileName);
+      return saver != null && saver.isFileExists(fileName);
 
-      return false;
    }
 }

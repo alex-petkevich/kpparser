@@ -38,8 +38,12 @@ public class IMDBParser implements Parser {
    private static final String TD_DIRECTOR = "Director:";
    private static final String TD_ROLES = "Stars:";
 
+   private final HttpClient httpClient;
+
    @Autowired
-   private HttpClient httpClient;
+   public IMDBParser(HttpClient httpClient) {
+      this.httpClient = httpClient;
+   }
 
    @Override
    public List<SearchResultItem> searchFilms(FileInfo fileInfo) {
@@ -55,7 +59,7 @@ public class IMDBParser implements Parser {
       }
       Elements blocks = doc.select(".result_text");
       if (blocks.size() > 0) {
-         List<SearchResultItem> result = new ArrayList();
+         List<SearchResultItem> result = new ArrayList<>();
 
          for (Element block : blocks) {
             SearchResultItem item = new SearchResultItem();
@@ -80,6 +84,9 @@ public class IMDBParser implements Parser {
       }
       int startBracket = blockContent.indexOf("(");
       int endBracket = blockContent.indexOf(")");
+      if (startBracket < 0 || endBracket < 0)
+         return blockContent;
+      
       return blockContent.substring(startBracket + 1, endBracket);
    }
 
@@ -116,7 +123,7 @@ public class IMDBParser implements Parser {
    }
 
    private String extractBigImg(String src) {
-      return src.replaceFirst("([^@]*)\\.([^\\.]+)$", ".$2");
+      return src.replaceFirst("([^@]*)\\.([^.]+)$", ".$2");
    }
 
    private String extractTag(Document doc, String selector, String tag) {
