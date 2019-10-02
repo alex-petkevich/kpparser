@@ -116,7 +116,10 @@ public class IMDBParser implements Parser {
          film.setGenre(extractTag(doc, ".see-more", TD_GENRES));
          film.setRoles(extractTag(doc, ".credit_summary_item", TD_ROLES));
 
-         film.setDescription(doc.select("div[itemprop=description]").first().text());
+         Element description = doc.select("div[class=summary_text]").first();
+         if (description != null) {
+            film.setDescription(description.text());
+         }
 
       }
       return film;
